@@ -8,6 +8,11 @@ from dashboard import routes as dashboard_routes
 from sqlalchemy.exc import SQLAlchemyError
 import traceback
 from diagnosis import routes as diagnosis_routes
+import os
+from sqlalchemy.orm import Session
+from auth.models import UserType, UserStatus
+from auth.security import get_password_hash
+from auth.queries import get_user_by_username
 
 app = FastAPI(
     title="Dr. Skin API",
@@ -84,9 +89,39 @@ async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
         content={"detail": "Database error occurred"}
     )
 
+DEFAULT_ADMIN_USERNAME = "admin"
+DEFAULT_ADMIN_EMAIL = "admin@drskin.dev"
+DEFAULT_ADMIN_PASSWORD = "admin123"
+
 @app.on_event("startup")
 def on_startup():
     init_db()
+    env = os.environ.get("DR_SKIN_ENV", "dev")
+    if env == "dev":
+        # Create default admin if not exists
+        db: Session = next(get_db())
+        admin_user = get_user_by_username(db, DEFAULT_ADMIN_USERNAME)
+        if not admin_user:
+            hashed_password = get_password_hash(DEFAULT_ADMIN_PASSWORD)
+            from auth import models
+            db_user = models.User(
+                username=DEFAULT_ADMIN_USERNAME,
+                email=DEFAULT_ADMIN_EMAIL,
+                hashed_password=hashed_password,
+                user_type=UserType.ADMIN,
+                status=UserStatus.ACTIVE,
+                is_active=True,
+                is_superuser=True
+            )
+            db.add(db_user)
+            db.commit()
+            db.refresh(db_user)
+            print("\n[DrSkin] Default admin created:")
+            print(f"  Username: {DEFAULT_ADMIN_USERNAME}")
+            print(f"  Email: {DEFAULT_ADMIN_EMAIL}")
+            print(f"  Password: {DEFAULT_ADMIN_PASSWORD}\n")
+        else:
+            print("[DrSkin] Default admin already exists.")
 
 @app.get("/")
 async def read_root():

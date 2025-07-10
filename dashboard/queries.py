@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 from dashboard import models
+from specialists.models import Specialist
 
 def get_admin(db: Session, admin_id: int):
     return db.query(models.Admin).filter(models.Admin.id == admin_id).first()
@@ -26,6 +27,9 @@ def delete_admin(db: Session, admin: models.Admin):
     db.delete(admin)
     db.commit()
     return admin
+
+def get_specialist(db: Session, specialist_id: int):
+    return db.query(Specialist).filter(Specialist.id == specialist_id).first()
 
 def get_dashboard_stats(db: Session):
     # Get total specialists

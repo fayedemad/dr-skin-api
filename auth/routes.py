@@ -84,21 +84,21 @@ async def register_specialist(
     profile_image: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
-    # Validate file types
-    allowed_image_types = ["image/jpeg", "image/png", "image/jpg"]
-    allowed_document_types = ["application/pdf", "image/jpeg", "image/png", "image/jpg"]
+    # just 3lshan n3dy l lela
+    # allowed_image_types = ["zimage/jpeg", "image/png", "image/jpg"]
+    # allowed_document_types = ["application/pdf", "image/jpeg", "image/png", "image/jpg"]
     
-    if license_file.content_type not in allowed_document_types:
-        raise HTTPException(
-            status_code=400, 
-            detail="License file must be PDF, JPEG, or PNG"
-        )
+    # if license_file.content_type not in allowed_document_types:
+    #     raise HTTPException(
+    #         status_code=400, 
+    #         detail="License file must be PDF, JPEG, or PNG"
+    #     )
     
-    if profile_image and profile_image.content_type not in allowed_image_types:
-        raise HTTPException(
-            status_code=400, 
-            detail="Profile image must be JPEG or PNG"
-        )
+    # if profile_image and profile_image.content_type not in allowed_image_types:
+    #     raise HTTPException(
+    #         status_code=400, 
+    #         detail="Profile image must be JPEG or PNG"
+    #     )
     
     # Validate file sizes (5MB for documents, 2MB for images)
     # Read file content to get size
